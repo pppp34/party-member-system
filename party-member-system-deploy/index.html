@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>党员管理系统 - 首页</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>党员管理系统</h1>
+        <p>乡村振兴学院</p>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="index.html" class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>首页看板</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="fas fa-users"></i>
+          <span>党员管理</span>
+        </a>
+        <a href="portrait.html" class="nav-item">
+          <i class="fas fa-user-circle"></i>
+          <span>党员画像</span>
+        </a>
+        <a href="stats.html" class="nav-item">
+          <i class="fas fa-chart-pie"></i>
+          <span>支部画像</span>
+        </a>
+        <a href="partners.html" class="nav-item">
+          <i class="fas fa-handshake"></i>
+          <span>合作伙伴</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2 class="page-title">首页看板</h2>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="location.href='members.html'">
+            <i class="fas fa-plus"></i> 新增党员
+          </button>
+        </div>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="stat-cards" id="statCards">
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="totalMembers">-</h3>
+            <p>党员总数</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="formalMembers">-</h3>
+            <p>正式党员</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fas fa-user-clock"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="probationaryMembers">-</h3>
+            <p>预备党员</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <i class="fas fa-user-minus"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="mobileMembers">-</h3>
+            <p>流动党员</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图表区域 -->
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">党员性别分布</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="genderChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">党员年龄分布</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="ageChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">各支部党员数量</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="branchChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">年度发展党员趋势</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 活动时间轴 -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">近期党建活动</h3>
+          <a href="#" class="btn btn-secondary btn-sm" onclick="loadActivities(); return false;">
+            查看全部
+          </a>
+        </div>
+        <div class="timeline" id="activitiesTimeline">
+          <div class="empty-state">
+            <i class="fas fa-calendar-alt"></i>
+            <p>暂无活动记录</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data-manager.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      App.init();
+      loadDashboard();
+    });
+
+    // 加载仪表盘数据
+    function loadDashboard() {
+      const stats = DataManager.getMemberStats();
+      
+      // 更新统计卡片
+      document.getElementById('totalMembers').textContent = stats.total;
+      document.getElementById('formalMembers').textContent = stats.formal;
+      document.getElementById('probationaryMembers').textContent = stats.probationary;
+      document.getElementById('mobileMembers').textContent = stats.mobile;
+      
+      // 绘制图表
+      renderGenderChart(stats);
+      renderAgeChart(stats);
+      renderBranchChart(stats);
+      renderTrendChart(stats);
+      
+      // 加载活动时间轴
+      renderActivitiesTimeline();
+    }
+
+    // 性别分布图
+    function renderGenderChart(stats) {
+      const data = {
+        labels: ['男', '女'],
+        values: [stats.male, stats.female]
+      };
+      const config = ChartConfig.getPieConfig(data, '');
+      ChartConfig.createChart('genderChart', config);
+    }
+
+    // 年龄分布图
+    function renderAgeChart(stats) {
+      const ageDist = stats.ageDistribution;
+      const data = {
+        labels: Object.keys(ageDist),
+        values: Object.values(ageDist)
+      };
+      const config = ChartConfig.getDoughnutConfig(data, '');
+      ChartConfig.createChart('ageChart', config);
+    }
+
+    // 支部分布图
+    function renderBranchChart(stats) {
+      const branches = stats.byBranch;
+      const labels = Object.keys(branches);
+      const values = Object.values(branches);
+      
+      const data = {
+        labels: labels,
+        values: values
+      };
+      const config = ChartConfig.getHorizontalBarConfig(data, '');
+      ChartConfig.createChart('branchChart', config);
+    }
+
+    // 发展党员趋势图
+    function renderTrendChart(stats) {
+      const byYear = stats.byJoinYear;
+      const years = Object.keys(byYear).sort();
+      const values = years.map(y => byYear[y]);
+      
+      const data = {
+        labels: years,
+        datasets: [{ label: '新发展党员', values: values }]
+      };
+      const config = ChartConfig.getLineConfig(data, '');
+      ChartConfig.createChart('trendChart', config);
+    }
+
+    // 活动时间轴
+    function renderActivitiesTimeline() {
+      const container = document.getElementById('activitiesTimeline');
+      const activities = DataManager.getAllActivities();
+      
+      if (activities.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-calendar-alt"></i>
+            <p>暂无活动记录</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // 按日期排序，取最近5条
+      const recentActivities = activities
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+      
+      container.innerHTML = recentActivities.map(activity => `
+        <div class="timeline-item">
+          <div class="timeline-date">${App.formatDate(activity.date)}</div>
+          <div class="timeline-content">
+            <div class="timeline-title">${activity.title}</div>
+            <p class="text-muted mt-2">
+              <span class="tag ${App.getStatusTagClass(activity.type)}">${activity.type}</span>
+              <span class="ml-2"><i class="fas fa-map-marker-alt"></i> ${activity.location}</span>
+            </p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 加载活动列表
+    function loadActivities() {
+      // 可以跳转到活动管理页面
+      App.showToast('活动管理功能开发中', 'info');
+    }
+  </script>
+</body>
+</html>
