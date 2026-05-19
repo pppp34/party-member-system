@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>云端同步设置 - 党员管理系统</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .settings-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .settings-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    .settings-title {
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+    
+    .settings-subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    .settings-section {
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .settings-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    .form-group input.error {
+      border-color: #dc3545;
+    }
+    
+    .form-hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+    
+    .sync-mode-selector {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .mode-option {
+      flex: 1;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    
+    .mode-option:hover {
+      border-color: var(--primary-color);
+    }
+    
+    .mode-option.active {
+      border-color: var(--primary-color);
+      background: rgba(196, 30, 58, 0.05);
+    }
+    
+    .mode-option i {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+    
+    .mode-option h4 {
+      margin-bottom: 5px;
+    }
+    
+    .mode-option p {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #a31830;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #1e7e34;
+    }
+    
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .sync-status.online {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .sync-status.offline {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    
+    .data-preview {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .data-preview-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .data-preview-item:last-child {
+      border-bottom: none;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .guide-steps {
+      background: #fff3cd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .guide-steps h4 {
+      margin-bottom: 15px;
+      color: #856404;
+    }
+    
+    .guide-steps ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    .guide-steps li {
+      margin-bottom: 10px;
+      color: #856404;
+    }
+    
+    .guide-steps code {
+      background: rgba(0,0,0,0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .alert-warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+    }
+    
+    .alert-danger {
+      background: #f8d7da;
+      border: 1px solid #dc3545;
+      color: #721c24;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <i class="fas fa-flag"></i>
+      <span>党员管理</span>
+    </div>
+    <nav>
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>首页看板</span>
+      </a>
+      <a href="members.html" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>党员管理</span>
+      </a>
+      <a href="portrait.html" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>党员画像</span>
+      </a>
+      <a href="stats.html" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span>支部画像</span>
+      </a>
+      <a href="partners.html" class="nav-item">
+        <i class="fas fa-handshake"></i>
+        <span>合作伙伴</span>
+      </a>
+      <a href="settings.html" class="nav-item active">
+        <i class="fas fa-cloud"></i>
+        <span>云端设置</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>云端同步设置</h1>
+    </div>
+
+    <div class="settings-container">
+      <div class="settings-card">
+        <h2 class="settings-title"><i class="fas fa-cloud"></i> 数据同步设置</h2>
+        <p class="settings-subtitle">配置云端数据库，实现多设备数据同步</p>
+
+        <!-- 当前状态 -->
+        <div id="syncStatus" class="sync-status offline">
+          <span class="status-indicator"></span>
+          <span id="statusText">正在检测...</span>
+        </div>
+
+        <!-- 同步模式选择 -->
+        <div class="settings-section">
+          <h3 class="section-title">同步模式</h3>
+          <div class="sync-mode-selector">
+            <div class="mode-option active" data-mode="localStorage" onclick="selectMode('localStorage')">
+              <i class="fas fa-database"></i>
+              <h4>本地存储</h4>
+              <p>数据保存在浏览器本地<br>仅当前设备可用</p>
+            </div>
+            <div class="mode-option" data-mode="supabase" onclick="selectMode('supabase')">
+              <i class="fas fa-cloud"></i>
+              <h4>云端同步</h4>
+              <p>数据同步到云端数据库<br>多设备实时共享</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supabase 配置 -->
+        <div class="settings-section" id="supabaseConfig" style="display: none;">
+          <h3 class="section-title">Supabase 连接配置</h3>
+          
+          <div class="guide-steps">
+            <h4><i class="fas fa-book"></i> 配置指南</h4>
+            <ol>
+              <li>访问 <a href="https://supabase.com" target="_blank">supabase.com</a> 并注册/登录账号</li>
+              <li>创建新项目（Free Plan 足够使用）</li>
+              <li>进入 <strong>Settings → API</strong></li>
+              <li>复制 <code>Project URL</code> 和 <code>anon public</code> key</li>
+              <li>在 SQL Editor 中运行 <code>backend/supabase/schema.sql</code> 创建表</li>
+            </ol>
+          </div>
+
+          <div class="form-group">
+            <label>Project URL</label>
+            <input type="text" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
+            <p class="form-hint">在 Supabase 控制台 → Settings → API 中获取</p>
+          </div>
+
+          <div class="form-group">
+            <label>Anon Key</label>
+            <input type="text" id="supabaseKey" placeholder="eyJhbGciOiJIUzI1NiIs...">
+            <p class="form-hint">公开密钥，用于客户端连接</p>
+          </div>
+
+          <button class="btn btn-primary" onclick="saveConfig()">
+            <i class="fas fa-save"></i> 保存配置
+          </button>
+        </div>
+
+        <!-- 数据预览 -->
+        <div class="settings-section">
+          <h3 class="section-title">本地数据概览</h3>
+          <div id="dataPreview" class="data-preview">
+            <div class="data-preview-item">
+              <span>党员数量</span>
+              <strong id="memberCount">-</strong>
+            </div>
+            <div class="data-preview-item">
+              <span>合作伙伴</span>
+              <strong id="partnerCount">-</strong>
+            </div>
+            <div class="data-preview-item">
+              <span>活动记录</span>
+              <strong id="activityCount">-</strong>
+            </div>
+            <div class="data-preview-item">
+              <span>最后同步</span>
+              <strong id="lastSync">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="settings-section">
+          <h3 class="section-title">数据操作</h3>
+          <div class="action-buttons">
+            <button class="btn btn-primary" onclick="syncNow()">
+              <i class="fas fa-sync"></i> 立即同步
+            </button>
+            <button class="btn btn-success" onclick="exportData()">
+              <i class="fas fa-download"></i> 导出数据
+            </button>
+            <button class="btn btn-secondary" onclick="importData()">
+              <i class="fas fa-upload"></i> 导入数据
+            </button>
+          </div>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+
+        <!-- 安全提示 -->
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>安全提示：</strong>
+          <ul style="margin: 10px 0 0 20px;">
+            <li>当前为公开策略，任何人都可读写数据</li>
+            <li>生产环境建议启用用户认证和更严格的 RLS 策略</li>
+            <li>敏感数据建议添加加密处理</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/data-manager.js"></script>
+  <script src="js/data-manager-cloud.js"></script>
+  
+  <script>
+    let currentMode = 'localStorage';
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 加载当前配置
+      loadConfig();
+      
+      // 加载数据预览
+      loadDataPreview();
+      
+      // 检测连接状态
+      await checkConnectionStatus();
+    });
+
+    // 加载配置
+    function loadConfig() {
+      const savedMode = localStorage.getItem('party_sync_mode') || 'localStorage';
+      currentMode = savedMode;
+      
+      document.querySelectorAll('.mode-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.mode === savedMode);
+      });
+
+      if (isSupabaseConfigured()) {
+        document.getElementById('supabaseUrl').value = SUPABASE_CONFIG.url;
+        document.getElementById('supabaseKey').value = SUPABASE_CONFIG.anonKey;
+        document.getElementById('supabaseConfig').style.display = 'block';
+      }
+    }
+
+    // 加载数据预览
+    function loadDataPreview() {
+      const members = DataManagerCloud.getAllMembers();
+      const partners = DataManagerCloud.getAllPartners();
+      const activities = DataManagerCloud.getAllActivities();
+      const lastSync = localStorage.getItem('party_last_sync');
+
+      document.getElementById('memberCount').textContent = members.length + ' 人';
+      document.getElementById('partnerCount').textContent = partners.length + ' 个';
+      document.getElementById('activityCount').textContent = activities.length + ' 条';
+      document.getElementById('lastSync').textContent = lastSync 
+        ? new Date(lastSync).toLocaleString('zh-CN')
+        : '从未同步';
+    }
+
+    // 选择同步模式
+    function selectMode(mode) {
+      if (mode === 'supabase' && !isSupabaseConfigured()) {
+        document.getElementById('supabaseConfig').style.display = 'block';
+        document.getElementById('supabaseUrl').focus();
+        alert('请先配置 Supabase 连接！');
+        return;
+      }
+
+      document.querySelectorAll('.mode-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.mode === mode);
+      });
+
+      if (mode === currentMode) return;
+
+      if (confirm(`确定切换到${mode === 'supabase' ? '云端同步' : '本地存储'}模式吗？`)) {
+        switchMode(mode);
+      } else {
+        // 恢复选择
+        document.querySelectorAll('.mode-option').forEach(opt => {
+          opt.classList.toggle('active', opt.dataset.mode === currentMode);
+        });
+      }
+    }
+
+    // 保存配置
+    function saveConfig() {
+      const url = document.getElementById('supabaseUrl').value.trim();
+      const key = document.getElementById('supabaseKey').value.trim();
+
+      if (!url || !key) {
+        alert('请填写完整的配置信息！');
+        return;
+      }
+
+      if (!url.startsWith('https://')) {
+        alert('URL 必须以 https:// 开头！');
+        return;
+      }
+
+      // 更新配置
+      SUPABASE_CONFIG.url = url;
+      SUPABASE_CONFIG.anonKey = key;
+
+      // 保存到文件（需要手动更新 supabase-client.js）
+      alert('配置已保存！现在可以切换到云端同步模式。\n\n提示：请刷新页面使配置生效。');
+      
+      // 测试连接
+      testConnection();
+    }
+
+    // 测试连接
+    async function testConnection() {
+      const statusEl = document.getElementById('syncStatus');
+      const statusText = document.getElementById('statusText');
+      
+      statusEl.className = 'sync-status';
+      statusText.innerHTML = '<span class="loading"></span> 测试连接中...';
+
+      try {
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase.from('members').select('id').limit(1);
+        
+        if (error) throw error;
+        
+        statusEl.className = 'sync-status online';
+        statusText.innerHTML = '<i class="fas fa-check-circle"></i> 连接成功！';
+      } catch (error) {
+        statusEl.className = 'sync-status offline';
+        statusText.innerHTML = '<i class="fas fa-times-circle"></i> 连接失败: ' + error.message;
+      }
+    }
+
+    // 检测连接状态
+    async function checkConnectionStatus() {
+      const statusEl = document.getElementById('syncStatus');
+      const statusText = document.getElementById('statusText');
+      const mode = localStorage.getItem('party_sync_mode') || 'localStorage';
+
+      if (mode === 'supabase' && isSupabaseConfigured()) {
+        try {
+          const supabase = getSupabaseClient();
+          await supabase.from('members').select('id').limit(1);
+          statusEl.className = 'sync-status online';
+          statusText.innerHTML = '<i class="fas fa-cloud"></i> 云端同步模式 - 已连接';
+        } catch (e) {
+          statusEl.className = 'sync-status offline';
+          statusText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 云端模式 - 连接异常';
+        }
+      } else if (mode === 'localStorage') {
+        statusEl.className = 'sync-status offline';
+        statusText.innerHTML = '<i class="fas fa-database"></i> 本地存储模式 - 未连接云端';
+      } else {
+        statusEl.className = 'sync-status offline';
+        statusText.innerHTML = '<i class="fas fa-question-circle"></i> 未配置云端连接';
+      }
+    }
+
+    // 切换模式
+    async function switchMode(mode) {
+      // 禁用所有按钮防止重复点击
+      document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+
+      try {
+        const success = await DataManagerCloud.switchMode(mode);
+        
+        if (success) {
+          currentMode = mode;  // 更新局部变量
+          alert(`已切换到${mode === 'supabase' ? '云端同步' : '本地存储'}模式！`);
+          loadDataPreview();
+          await checkConnectionStatus();
+          // 刷新页面确保状态一致
+          location.reload();
+        }
+      } catch (e) {
+        alert('切换失败: ' + e.message);
+      } finally {
+        document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+      }
+    }
+
+    // 立即同步
+    async function syncNow() {
+      // 直接从 localStorage 读取当前模式，而不是用局部变量
+      const savedMode = localStorage.getItem('party_sync_mode') || 'localStorage';
+      if (savedMode !== 'supabase') {
+        alert('请先切换到云端同步模式！');
+        return;
+      }
+
+      const btn = event.target.closest('.btn');
+      btn.innerHTML = '<span class="loading"></span> 同步中...';
+
+      try {
+        await DataManagerCloud._syncFromCloud();
+        alert('同步成功！');
+        loadDataPreview();
+      } catch (e) {
+        alert('同步失败: ' + e.message);
+      } finally {
+        btn.innerHTML = '<i class="fas fa-sync"></i> 立即同步';
+      }
+    }
+
+    // 导出数据
+    function exportData() {
+      const data = DataManagerCloud.exportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `党员管理数据_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 导入数据
+    function importData() {
+      document.getElementById('importFile').click();
+    }
+
+    // 处理导入
+    async function handleImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        
+        if (confirm('导入将覆盖现有数据，确定继续吗？')) {
+          await DataManagerCloud.importData(data);
+          alert('导入成功！');
+          loadDataPreview();
+        }
+      } catch (e) {
+        alert('导入失败: ' + e.message);
+      }
+
+      event.target.value = '';
+    }
+  </script>
+</body>
+</html>
